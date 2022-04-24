@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+
+
 public class BillManagement {
 
 	public Connection connect() {
@@ -62,14 +64,14 @@ public class BillManagement {
 
 
   //read Data
-  public String readItems() {
+  public String readItemsForAdmin() {
       String output  = "";
 
       try {
           Connection con = connect();
 
           if (con == null) {
-              return "error while connecting database for reading";
+              return "error while connecting database!";
           }
 
           // Prepare the html table to be displayed
