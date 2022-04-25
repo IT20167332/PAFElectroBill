@@ -6,19 +6,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-
+import org.json.simple.JSONObject; 
+import org.json.simple.JSONValue;  
 
 public class BillManagement {
 
 	public Connection connect() {
       Connection con = null;
-
       try{
-
           Class.forName("com.mysql.jdbc.Driver");
           con= DriverManager.getConnection("jdbc:mysql://localhost:3306/pafpoject/billingService", "root", "");
           //For testing
-          System.out.print("Successfully connected");
+          //System.out.print("Successfully connected");
 
       }catch(Exception e){
 
@@ -29,7 +28,7 @@ public class BillManagement {
 	}
 
   //Insert Data
-  public String insertBill(int MonthlyPayment , String address , String userId , String dueDate) {
+  public String insertBill(int MonthlyPayment , String address , String billId , String dueDate) {
 
       String output = "";
       try {
@@ -39,7 +38,7 @@ public class BillManagement {
               return "error while connecting database";
           }
 
-          String query = "insert into BILL(`MonthlyPayment` , `address` , `userId` , `dueDate`)"
+          String query = "insert into BILL(`MonthlyPayment` , `address` , `billId` , `dueDate`)"
                   + "value (?,?,?,?,?)";
 
           PreparedStatement preparedStmt = con.prepareStatement(query);
@@ -47,7 +46,7 @@ public class BillManagement {
           // binding values
           preparedStmt.setInt(1, MonthlyPayment);
           preparedStmt.setString(2, address);
-          preparedStmt.setString(3, userId );
+          preparedStmt.setString(3, billId );
           preparedStmt.setString(4,dueDate );
 
           //execute the statement
@@ -66,7 +65,7 @@ public class BillManagement {
   //read Data
   public String readItemsForAdmin() {
       String output  = "";
-
+      JSONObject obj=new JSONObject(); 
       try {
           Connection con = connect();
 
@@ -74,57 +73,40 @@ public class BillManagement {
               return "error while connecting database!";
           }
 
-          // Prepare the html table to be displayed
-          output = "<table border='1'><tr><th>Item Code</th>"
-                  +"<th>Item Name</th><th>Item Price</th>"
-                  + "<th>Item Description</th>"
-                  + "<th>Update</th><th>Remove</th></tr>";
-
           String query = "select * from items";
           Statement stmt = con.createStatement();
           ResultSet rs = stmt.executeQuery(query);
 
           while (rs.next())
           {
-              String itemID = Integer.toString(rs.getInt("itemID"));
-              String itemCode = rs.getString("itemCode");
-              String itemName = rs.getString("itemName");
-              String itemPrice = Double.toString(rs.getDouble("itemPrice"));
-              String itemDesc = rs.getString("itemDesc");
-              // Add a row into the html table
-
-              output += "<tr><td>" + itemCode + "</td>";
-              output += "<td>" + itemName + "</td>";
-              output += "<td>" + itemPrice + "</td>";
-              output += "<td>" + itemDesc + "</td>";
-
+              String MonthlyPayment = Integer.toString(rs.getInt("MonthlyPayment"));
+              String address = rs.getString("address");
+              String billId = rs.getString("billId");
+              String dueDate = Double.toString(rs.getDouble("dueDate"));
+              
+              // Add a row into the html table 
+              
+              obj.put("MonthlyPayment",MonthlyPayment);    
+              obj.put("address",address);    
+              obj.put("billId",billId); 
+              obj.put("dueDate", dueDate);
               // buttons
-              output += "<td><input name='btnUpdate' "
-                      + " type='button' value='Update'></td>"
-                      + "<td><form method='post' action='items.jsp'>"
-                      + "<input name='btnRemove' "
-                      + " type='submit' value='Remove'>"
-                      + "<input name='itemID' type='hidden' "
-                      + " value='" + itemID + "'>" + "</form></td></tr>";
+              
           }
 
           con.close();
           // Complete the html table
-          output += "</table>";
-
-
+          output = JSONValue.toJSONString(obj); 
       }catch(Exception e) {
 
           output = "error while reading items";
-          System.err.println(e.getMessage());
-
+          //System.err.println(e.getMessage());
       }
-
       return output;
   }
 
   //update
-  public String updateItem(String ID, String code, String name, String price, String desc) {
+  public String updateItem(String ID, String MonthlyPayment, String address, String billId, String dueDate) {
 
       String output = "";
 
@@ -134,21 +116,19 @@ public class BillManagement {
 
           if (con == null){
 
-              return "Error while connecting to the database for updating.";
+              return "Error while updating.";
           }
 
           // create a prepared statement
-          String query = "UPDATE items SET itemCode=?,itemName=?,itemPrice=?,itemDesc=? WHERE itemID=?";
+          String query = "UPDATE items SET MonthlyPayment=?,itemName=?,itemPrice=?,itemDesc=? WHERE itemID=?";
 
           PreparedStatement preparedStmt = con.prepareStatement(query);
 
           // binding values
-          preparedStmt.setString(1, code);
-          preparedStmt.setString(2, name);
-          preparedStmt.setDouble(3, Double.parseDouble(price));
-          preparedStmt.setString(4, desc);
-          preparedStmt.setInt(5, Integer.parseInt(ID));
-
+          preparedStmt.setString(1, MonthlyPayment);
+          preparedStmt.setString(2, address);
+          preparedStmt.setString(3, billId);
+          preparedStmt.setString(4, dueDate);
           // execute the statement
           preparedStmt.execute();
 
@@ -158,31 +138,29 @@ public class BillManagement {
 
       }catch(Exception e) {
 
-          output = "Error while updating the item.";
-          System.err.println(e.getMessage());
+          output = "Error while updating bill.";
+          //System.err.println(e.getMessage());
 
       }
-
       return output;
   }
 
   //delete
-  public String deleteItem(String itemID) {
+  public String deleteItem(String ID) {
       String output = "";
       try{
           Connection con = connect();
           if (con == null) {
-              return "Error while connecting to the database for deleting.";
+              return "Error while deleting.";
           }
 
           // create a prepared statement
           String query = "delete from items where itemID=?";
           PreparedStatement preparedStmt = con.prepareStatement(query);
 
-          // binding values
-          preparedStmt.setInt(1, Integer.parseInt(itemID));
+          
+          preparedStmt.setInt(1, Integer.parseInt(ID));
 
-          // execute the statement
           preparedStmt.execute();
 
           con.close();
@@ -191,7 +169,7 @@ public class BillManagement {
       }catch (Exception e) {
 
           output = "Error while deleting the item.";
-          System.err.println(e.getMessage());
+          //System.err.println(e.getMessage());
       }
 
       return output;

@@ -9,20 +9,29 @@ import javax.ws.rs.core.MediaType;
 @Path("/billmanagement")
 public class billService {
 
-//	@GET
-	 
-//	@Produces(MediaType.TEXT_PLAIN) 
-//	public String hello(@PathParam("id") int id) 
-//	{ 
-//		BillManagement newbill = new BillManagement();
-//		
-//		newbill.insertBill(MonthlyPayment, , null, null)
-//	} 
-//	
-//	@POST
-//	@Path("/add/{MonthlyPayment}/{address}/{billId}/{dueDate}")
-//	@Produces(MediaType.APPLICATION_JSON)
-//	public String insertbilldata(@PathParam("id") int id) {
-//		return"";
-//	}
+	@GET
+	@Produces(MediaType.TEXT_PLAIN) 
+	public String getAllBillData() 
+	{ 
+		BillManagement newbill = new BillManagement();
+		
+		String getData = newbill.readItemsForAdmin();
+		
+		return getData;
+	} 
+	
+	@POST
+	@Path("/add/{MonthlyPayment}/{address}/{billId}/{dueDate}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String insertbilldata(@PathParam("MonthlyPayment") int MonthlyPayment,
+								 @PathParam("address") String address,
+								 @PathParam("billId") String billId,
+								 @PathParam("dueDate") String dueDate) {
+		
+		BillManagement newbill = new BillManagement();
+		String output = newbill.insertBill(MonthlyPayment,address , billId, dueDate);
+		return output;
+	}
+	
+	
 }
