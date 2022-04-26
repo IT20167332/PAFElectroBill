@@ -106,7 +106,7 @@ public class BillManagement {
   }
 
   //update
-  public String updateItem(String ID, String MonthlyPayment, String address, String billId, String dueDate) {
+  public String updateBill(String ID, int MonthlyPayment, String address, String billId, String dueDate) {
 
       String output = "";
 
@@ -125,7 +125,7 @@ public class BillManagement {
           PreparedStatement preparedStmt = con.prepareStatement(query);
 
           // binding values
-          preparedStmt.setString(1, MonthlyPayment);
+          preparedStmt.setString(1,Integer.toString(MonthlyPayment) );
           preparedStmt.setString(2, address);
           preparedStmt.setString(3, billId);
           preparedStmt.setString(4, dueDate);
@@ -146,7 +146,7 @@ public class BillManagement {
   }
 
   //delete
-  public String deleteItem(String ID) {
+  public String deleteBill(String ID) {
       String output = "";
       try{
           Connection con = connect();
